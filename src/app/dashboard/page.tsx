@@ -4,26 +4,40 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Typography from '@mui/material/Typography';
 
 import { DrawerHeader, Header, ListOfBooks } from './components';
-import { createClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
 import { APP_LOGIN } from '@/constants';
 import { getUserLocale } from '@/actions/locale';
 import { getTheme } from '@/actions/theme';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 export default async function DashboardPage() {
-  const supabase = await createClient();
   const locale = await getUserLocale();
   const theme = await getTheme();
 
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data?.user) {
+  const cookieStore = await cookies();
+  const access_token = cookieStore.get('access_token');
+  const userInfo = cookieStore.get('user_info');
+
+  if (!access_token) {
     redirect(APP_LOGIN);
+    return null;
+  }
+
+  let user = null;
+  if (userInfo) {
+    try {
+      user = JSON.parse(userInfo.value);
+    } catch (error) {
+      console.error('Error parsing user info:', error);
+      redirect(APP_LOGIN);
+      return null;
+    }
   }
 
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <Header user={data.user} />
+      <Header user={user} />
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />
         <Typography sx={{ marginBottom: 2 }}>

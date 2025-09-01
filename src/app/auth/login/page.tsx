@@ -2,7 +2,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { Grid2 } from '@mui/material';
-import { createClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { APP_DASHBOARD } from '@/constants';
 import LoginForm from '@/components/LoginFormComponent';
@@ -10,22 +10,22 @@ import Image from 'next/image';
 
 export default async function LoginPage() {
 
-  const supabase = await createClient();
-
-  const { data } = await supabase.auth.getUser();
-  if (data?.user) {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get('access_token');
+  
+  if (accessToken) {
     redirect(APP_DASHBOARD);
   }
 
   return (
-    <Container component='main' maxWidth={false} disableGutters={true} 
-      sx={{ 
+    <Container component='main' maxWidth={false} disableGutters={true}
+      sx={{
         height:'100vh',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
       }}>
-      <Grid2 
+      <Grid2
         container
         spacing={0}
         sx={{
@@ -36,7 +36,7 @@ export default async function LoginPage() {
           p: 3,
         }}
       >
-        <Grid2 
+        <Grid2
           size={{ xs: 12, md: 6 }}
           sx={{
             alignItems: 'center',
@@ -55,9 +55,8 @@ export default async function LoginPage() {
           </Box>
           <LoginForm/>
         </Grid2>
-
         <Grid2
-          size={{ xs: 12, md: 6 }} 
+          size={{ xs: 12, md: 6 }}
           sx={{
             background: 'linear-gradient(180deg, #4B0082 0%, #800080 100%)',
             color: 'white',
@@ -78,18 +77,18 @@ export default async function LoginPage() {
             bottom: 30,
             left: 65,
           }}>
-            <Image 
-              src='/assets/logo.png' 
-              alt='logo medis' 
-              width={300} 
-              height={150} 
+            <Image
+              src='/assets/logo.png'
+              alt='logo medis'
+              width={300}
+              height={150}
               style={{ position: 'absolute', zIndex: 1, top:0, left: 25}}/>
-            <Image 
+            <Image
               src='/assets/person.png'
               alt='person'
               width={300}
               height={150}
-              style={{ position: 'absolute', top: 10, left: 20, zIndex: 2 }}  />
+              style={{ position: 'absolute', top: 10, left: 20, zIndex: 2 }} />
           </Box>
           <Typography variant='h3' fontWeight='400'>
             Your Personal <br/>
