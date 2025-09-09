@@ -3,7 +3,6 @@ const withNextIntl = createNextIntlPlugin();
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone' as const,
   async redirects() {
     return [
       {
