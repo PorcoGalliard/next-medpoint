@@ -34,11 +34,10 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
-      - name: Copy required node_modules to output
+      - name: Copy all node_modules to output
         run: |
-          mkdir -p .vercel/output/functions/node_modules
-          cp -r node_modules/next .vercel/output/functions/node_modules/
-          cp -r node_modules/jekoneng-web-ui .vercel/output/functions/node_modules/
+          mkdir -p .vercel/output/functions
+          cp -r node_modules .vercel/output/functions/
 
       - name: Deploy to Vercel Production
         uses: amondnet/vercel-action@v25
