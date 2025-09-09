@@ -25,11 +25,17 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Build application
-        run: yarn build
+      - name: Build application with Vercel
+        run: npx vercel build
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      # - name: Create Vercel prebuilt output
+      #   run: |
+      #     mkdir -p .vercel/output
+      #     cp -r .next .vercel/output/
+      #     echo '{"version":3}' > .vercel/output/config.json
 
       - name: Deploy to Vercel Production
         uses: amondnet/vercel-action@v25
