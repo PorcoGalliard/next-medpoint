@@ -25,19 +25,9 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Pull Vercel configuration
-        run: npx vercel pull --yes --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Build application with Vercel
-        run: npx vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-
-      - name: Copy all node_modules to output
+      - name: Create .yarnrc for Vercel
         run: |
-          mkdir -p .vercel/output/functions
-          cp -r node_modules .vercel/output/functions/
+          echo '"https://gitea.sev-2.com/:_authToken" "${GITEA_TOKEN}"' > .yarnrc
 
       - name: Deploy to Vercel Production
         uses: amondnet/vercel-action@v25
@@ -46,4 +36,8 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           working-directory: ./
-          vercel-args: "--prod --prebuilt"
+          vercel-args: "--prod"
+        env:
+          GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
