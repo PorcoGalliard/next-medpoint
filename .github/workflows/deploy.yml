@@ -45,6 +45,15 @@ jobs:
           cp -r .next/standalone/* .vercel/output/functions/index.func/
           cp -r .next/static .vercel/output/functions/index.func/.next/
 
+          # Create function config
+          cat > .vercel/output/functions/index.func/.vc-config.json << 'EOF'
+          {
+            "runtime": "nodejs18.x",
+            "handler": "server.js",
+            "launcherType": "Nodejs"
+          }
+          EOF
+
           # Create config.json
           cat > .vercel/output/config.json << 'EOF'
           {
