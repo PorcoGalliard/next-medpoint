@@ -33,17 +33,18 @@ jobs:
 
       - name: Create Vercel output structure
         run: |
-          mkdir -p .vercel/output/functions
+          mkdir -p .vercel/output/functions/index.func
           mkdir -p .vercel/output/static
 
-          # Copy standalone server as serverless function
-          cp -r .next/standalone/* .vercel/output/functions/
+          # Copy standalone server into function directory
+          cp -r .next/standalone/* .vercel/output/functions/index.func/
 
-          # Create index function that handles all routes
-          cat > .vercel/output/functions/index.func << 'EOF'
+          # Create function config
+          cat > .vercel/output/functions/index.func/.vc-config.json << 'EOF'
           {
             "runtime": "nodejs18.x",
-            "handler": "server.js"
+            "handler": "server.js",
+            "launcherType": "Nodejs"
           }
           EOF
 
@@ -58,7 +59,8 @@ jobs:
             "routes": [
               {
                 "src": "^/_next/static/(.*)$",
-                "dest": "/_next/static/$1"
+                "headers": { "cache-control": "public, max-age=31536000, immutable" },
+                "dest": "/static/_next/static/$1"
               },
               {
                 "src": "^/(.*)",
