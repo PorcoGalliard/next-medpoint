@@ -34,6 +34,12 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
+      - name: Copy standalone build to Vercel output
+        run: |
+          cp -r .next/standalone .vercel/output/
+          cp -r .next/static .vercel/output/static
+          cp -r public .vercel/output/static/ 2>/dev/null || true
+
       - name: Deploy to Vercel Production
         uses: amondnet/vercel-action@v25
         with:
