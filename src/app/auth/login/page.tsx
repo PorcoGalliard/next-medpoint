@@ -2,18 +2,17 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { Grid2 } from '@mui/material';
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { createClient } from '@/lib/supabase/server';
 import { APP_DASHBOARD } from '@/constants';
 import LoginForm from '@/components/LoginFormComponent';
 import Image from 'next/image';
 
 export default async function LoginPage() {
+  const supabase = await createClient();
 
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get('access_token');
-  
-  if (accessToken) {
+  const { data } = await supabase.auth.getUser();
+  if (data?.user) {
     redirect(APP_DASHBOARD);
   }
 
