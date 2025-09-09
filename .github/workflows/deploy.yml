@@ -31,11 +31,37 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
-      - name: Pull Vercel configuration
-        run: npx vercel pull --yes --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Create Vercel Build Output
+        run: |
+          mkdir -p .vercel/output/functions
+          mkdir -p .vercel/output/static
 
-      - name: Build with Vercel
-        run: npx vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+          # Copy static files
+          cp -r .next/static .vercel/output/static/_next/
+          cp -r public/* .vercel/output/static/ 2>/dev/null || true
+
+          # Create serverless function
+          mkdir -p .vercel/output/functions/index.func
+          cp -r .next/standalone/* .vercel/output/functions/index.func/
+          cp -r .next/static .vercel/output/functions/index.func/.next/
+
+          # Create config.json
+          cat > .vercel/output/config.json << 'EOF'
+          {
+            "version": 3,
+            "routes": [
+              {
+                "src": "^/(_next/static/.*)$",
+                "headers": { "cache-control": "public, max-age=31536000, immutable" },
+                "continue": true
+              },
+              {
+                "src": "^/(.*)",
+                "dest": "/index"
+              }
+            ]
+          }
+          EOF
 
       - name: Deploy to Vercel Production
         uses: amondnet/vercel-action@v25
