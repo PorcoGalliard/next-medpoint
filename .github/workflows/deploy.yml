@@ -33,11 +33,40 @@ jobs:
 
       - name: Create Vercel output structure
         run: |
+          mkdir -p .vercel/output/functions
           mkdir -p .vercel/output/static
-          cp -r .next/standalone .vercel/output/functions
+
+          # Copy standalone server as serverless function
+          cp -r .next/standalone/* .vercel/output/functions/
+
+          # Create index function that handles all routes
+          cat > .vercel/output/functions/index.func << 'EOF'
+          {
+            "runtime": "nodejs18.x",
+            "handler": "server.js"
+          }
+          EOF
+
+          # Copy static assets
           cp -r .next/static .vercel/output/static/_next
           cp -r public/* .vercel/output/static/ 2>/dev/null || true
-          echo '{"version":3}' > .vercel/output/config.json
+
+          # Create config with proper routing
+          cat > .vercel/output/config.json << 'EOF'
+          {
+            "version": 3,
+            "routes": [
+              {
+                "src": "^/_next/static/(.*)$",
+                "dest": "/_next/static/$1"
+              },
+              {
+                "src": "^/(.*)",
+                "dest": "/index"
+              }
+            ]
+          }
+          EOF
 
       - name: Deploy to Vercel Production
         uses: amondnet/vercel-action@v25
